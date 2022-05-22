@@ -1,28 +1,27 @@
 const { copyFile, mkdir, readdir, rm } = require('fs/promises');
-const path = require('path');
+const { join } = require('path');
 
-const pathDir = path.join(__dirname, 'files');
-const pathCopyDir = path.join(__dirname, 'files-copy');
-
-mkdir(pathCopyDir, {recursive: true});
+const pathDir = join(__dirname, 'files');
+const pathCopyDir = join(__dirname, 'files-copy');
 
 async function delFiles () {
-  const dirents = await readdir(pathCopyDir, {withFileTypes: true});
-  for (const dirent of dirents) {
-    await rm(path.join(pathCopyDir, dirent.name));
+  const files = await readdir(pathCopyDir, {withFileTypes: true});
+  for (const file of files) {
+    await rm(join(pathCopyDir, file.name));
   }
 }
 
 async function copyFiles () {
-  const dirents = await readdir(pathDir, {withFileTypes: true});
-  for (const dirent of dirents) {
-    if (dirent.isFile()) {
-      await copyFile(path.join(pathDir, dirent.name), path.join(pathCopyDir, dirent.name));
-    }
+  const files = await readdir(pathDir, {withFileTypes: true}).then(dirents => {
+    return dirents.filter(dirent => dirent.isFile()); 
+  });
+  for (const file of files) {
+    await copyFile(join(pathDir, file.name), join(pathCopyDir, file.name));
   }
 }
 
 (async () => {
+  await mkdir(pathCopyDir, {recursive: true});
   await delFiles();
   await copyFiles();
 })();
