@@ -1,21 +1,21 @@
-const fs = require('fs');
+const { createWriteStream, createReadStream } = require('fs');
 const { readdir } = require('fs/promises');
-const path = require('path');
+const { join, extname } = require('path');
 
-const pathCurrentDir = path.join(__dirname, 'styles');
-const pathBundleDir = path.join(__dirname, 'project-dist');
+const pathCurrentDir = join(__dirname, 'styles');
+const pathBundleDir = join(__dirname, 'project-dist');
 
-const pathBundleFile = path.join(pathBundleDir, 'bundle.css');
-const outputStream = fs.createWriteStream(pathBundleFile);
+const pathBundleFile = join(pathBundleDir, 'bundle.css');
+const outputStream = createWriteStream(pathBundleFile);
 
 async function bundle() {
-  const dirents = await readdir(pathCurrentDir, {withFileTypes: true});
-  for (const dirent of dirents) {
-    if (dirent.isFile() && path.parse(dirent.name).ext == '.css') {
-      const inputFile = path.join(pathCurrentDir, dirent.name);
-      const inputStream = fs.createReadStream(inputFile, 'utf-8');
-      inputStream.pipe(outputStream);
-    }
+  const files = await readdir(pathCurrentDir, {withFileTypes: true}).then(dirents => {
+    return dirents.filter(dirent => dirent.isFile() && extname(dirent.name) == '.css'); 
+  });
+  for (const file of files) {
+    const inputFile = join(pathCurrentDir, file.name);
+    const inputStream = createReadStream(inputFile, 'utf-8');
+    inputStream.pipe(outputStream);
   }
 }
 
