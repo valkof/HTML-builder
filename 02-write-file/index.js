@@ -1,10 +1,9 @@
-const fs = require('fs');
-const path = require('path');
+const { createWriteStream } = require('fs');
+const { join } = require('path');
+const { stdin, stdout } = require('process');
 
-const pathOutputFile = path.join(__dirname, 'text.txt');
-const output = fs.createWriteStream(pathOutputFile);
-
-const { stdin, stdout } = process;
+const pathOutputFile = join(__dirname, 'text.txt');
+const output = createWriteStream(pathOutputFile);
 
 stdout.write('Type in anything ("exit", "Ctrl+C"): ');
 
