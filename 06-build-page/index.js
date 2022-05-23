@@ -31,10 +31,11 @@ async function createStyleFile(pathProjectDir, pathStylesDir) {
     return dirents.filter(dirent => dirent.isFile() && extname(dirent.name) == '.css'); 
   });
   const outputStream = createWriteStream(join(pathProjectDir, 'style.css'));
-  for (const file of files) {
+  for await (const file of files) {
     const inputFile = join(pathStylesDir, file.name);
-    const inputStream = createReadStream(inputFile, 'utf-8');
-    inputStream.pipe(outputStream);
+    for await (const value of createReadStream(inputFile, 'utf-8')) {
+      outputStream.write(value);
+    }
   }
 }
 
@@ -45,7 +46,7 @@ async function delDirectory(pathDelDir) {
 async function copyFilesDirectory(pathInputDir, pathParrentDir) {
   const pathOutputDir =  await createDir(pathParrentDir, parse(pathInputDir).name);
   const dirents = await readdir(pathInputDir, {withFileTypes: true});
-  for (const dirent of dirents) {
+  for await (const dirent of dirents) {
     if (dirent.isFile()) {
       await copyFile(join(pathInputDir, dirent.name), join(pathOutputDir, dirent.name));
     } else {
