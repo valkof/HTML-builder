@@ -36,6 +36,7 @@ async function createStyleFile(pathProjectDir, pathStylesDir) {
     for await (const value of createReadStream(inputFile, 'utf-8')) {
       outputStream.write(value);
     }
+    outputStream.write('\n\n');
   }
 }
 

@@ -17,6 +17,7 @@ async function bundle() {
     for await (const value of createReadStream(inputFile, 'utf-8')) {
       outputStream.write(value);
     }
+    outputStream.write('\n');
   }
 }
 
